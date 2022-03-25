@@ -4,10 +4,10 @@ export default {
       return new Promise((resolve, reject) => {
           const img = document.createElement('img');
           img.src = src;
-          img.addEventListener('load',(event) => {
+          img.addEventListener('load',() => {
             resolve();
           })
-          img.addEventListener('error',(event) => {
+          img.addEventListener('error',() => {
             reject('error');
           })
       })

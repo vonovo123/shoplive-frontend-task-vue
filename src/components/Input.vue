@@ -1,7 +1,7 @@
 <template>
   <input
     :value="inputValue" 
-    @input="fncSetInputValue" />
+    @input="setInputValue" />
 </template>
 
 <script>
@@ -16,10 +16,11 @@ export default {
       default: ''
     },
   },
+  emits: ['input-event'],
   methods: {
-    fncSetInputValue(e) {
+    setInputValue(e) {
       const value = e.target.value.trim();
-      this.$emit('inputEvent', { type : this.type, value});
+      this.$emit('input-event', { type : this.type, value});
     }
   },
 }

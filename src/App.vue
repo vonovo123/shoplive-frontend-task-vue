@@ -1,45 +1,30 @@
 <template>
   <div className="App">
     <Header />
-    <div className="wrap-menu">
-      <div class="inner">
-        <Menu 
-          @fncSearchItem="fncSearchItem"
-          @fncAddItem="fncAddItem"
-          @fncMatchKeyword="fncMatchKeyword" />
-      </div>
-    </div>
-    <div className="wrap-info">
-      <div class="inner">
-        <div>아이템 - 총 {{ count }} 개</div>
-      </div>
-    </div>
-    <div className="wrap-items">
-      <div class="inner items">
-        <Item
-          v-for="item in items"
-          :key="item.id" 
-          :item="item"
-          @fncRemoveItem="fncRemoveItem"
-          @fncEditItem="fncEditItem"
-          @fnsSetDefaultImage="fnsSetDefaultImage" />
-      </div>
-    </div>
+    <Menu 
+      @search-item="searchItem"
+      @add-item="addItem"
+      @match-keyword="matchKeyword" />
+    <Info :count="count" />
+    <ItemList
+      :items="items"
+      @remove-item="removeItem"
+      @edit-item="editItem"
+      @set-default-image="setDefaultImage" />
   </div>
 </template>
-
-
 <script>
 import {DUMMY} from './dummies.js'
-import Item from './components/Item.vue'
 import Header from './components/Header.vue'
 import Menu from './components/Menu.vue'
+import Info from './components/Info.vue'
+import ItemList from './components/ItemList.vue'
 export default {
-  components : {Item,Header, Menu},
+  components : {Header, Menu, Info, ItemList},
   created(){
-      let cacheData = this.$getStorage('itemList');
+      let cacheData = this.$getStorage('item-list');
       if(!cacheData) cacheData = [...DUMMY];
-      this.fncReadItems(cacheData);
+      this.initItems(cacheData);
   },
   data() {
     return {
@@ -49,8 +34,23 @@ export default {
     }
   },
   methods : {
-    //create
-    fncAddItem(addItem){
+    //items 구성에 필요한 데이터 set
+    initItems(data){
+      this.itemIDs = [];
+      data.forEach(item => {
+            this.itemIDs.push(item.id);
+            item.titleView = `<div class=title>${item.title}</div>`;
+            item.isHidden = false;
+            return item;
+      })
+      console.log(data);
+      this.items = [...data];
+      this.count = this.items.length;
+      this.$setStorage('item-list', this.items);
+      return data;
+    },
+    //사용자 아이템 추가
+    addItem(addItem){
       const date  = new Date();
       const timeStamp = date.getTime()
       addItem.id = timeStamp;
@@ -60,41 +60,19 @@ export default {
       this.items.push({...addItem});
       this.itemIDs.push(timeStamp);
       this.count = this.items.length;
-      this.$setStorage('itemList', this.items);
+      this.$setStorage('item-list', this.items);
+      return addItem;
     },
-    //read
-    fncReadItems(data){
-      this.itemIDs = [];
-      data.forEach(item => {
-            this.itemIDs.push(item.id);
-            item.titleView = `<div class=title>${item.title}</div>`;
-            item.isHidden = false;
-            return item;
-      })
-      this.items = [...data];
-      this.count = this.items.length;
-      this.$setStorage('itemList', this.items);
-    },
-    //update
-    fncEditItem(editItem){
-      const editItemIdx = this.itemIDs.indexOf(editItem.id);
-      let item = this.items[editItemIdx];
-      item.title = editItem.title;
-      item.titleView = `<div class=title>${item.title}</div>`;
-      item.likeCount = editItem.likeCount;
-      item.imageUrl = editItem.imageUrl;
-      this.$setStorage('itemList', [...this.items])
-    },
-    //delete
-    fncRemoveItem(id){
+    //지정 아이템 삭제
+    removeItem(id){
       const removieItemIdx = this.itemIDs.indexOf(id);
       this.itemIDs.splice(removieItemIdx,1);
       this.items.splice(removieItemIdx,1);
       this.count = this.items.length;
-      this.$setStorage('itemList', [...this.items])
+      this.$setStorage('item-list', [...this.items])
     },
-    //search
-    fncSearchItem(searchword){
+    //검색어와 일치하는 제목을 가진 item만 보여줌
+    searchItem(searchword){
       this.count = 0;
       this.items.forEach(item => {
         const searchIdx = item.title.indexOf(searchword)
@@ -105,8 +83,10 @@ export default {
           this.count +=1;
         }
       })
+
     },
-    fncMatchKeyword(searchWord){
+    //title 내에서 검색어 입력과 일치하는 부분 찾아 하이라이트
+    matchKeyword(searchWord){
       this.items.forEach(item => {
         let {title} = item;
         let searchIdx = title.indexOf(searchWord);
@@ -129,11 +109,21 @@ export default {
         }
       })
     },
-    fnsSetDefaultImage({id, url}){
-      console.log(`this.items[editItemIdx].imageUrl`)
+    //사용자 아이템 내용 변경
+    editItem(editItem){
+      const editItemIdx = this.itemIDs.indexOf(editItem.id);
+      let item = this.items[editItemIdx];
+      item.title = editItem.title;
+      item.titleView = `<div class=title>${item.title}</div>`;
+      item.likeCount = editItem.likeCount;
+      item.imageUrl = editItem.imageUrl;
+      this.$setStorage('item-list', [...this.items])
+    },
+
+    //사용자가 입력한 이미지가 존재하지않거나 load에 실패하면 특정이미지로 변환
+    setDefaultImage({id, url}){
       const editItemIdx = this.itemIDs.indexOf(id);
       this.items[editItemIdx].imageUrl = url;
-      console.log(this.items[editItemIdx].imageUrl);
     }
   }
 }
@@ -154,7 +144,7 @@ export default {
         padding: 10px 0 15px 0;
       }
       button {
-        margin-left:5px;
+        margin-left:2px;
       }
 
       @media (max-width: 1024px){

@@ -21,6 +21,7 @@ export default {
       default: null
     }
   },
+  emits:["edit"],
   methods: {
     handleInput(event){
       this.$emit("edit", {target : this.target, value:event.target.value});
@@ -42,12 +43,10 @@ export default {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
-      color:grey;
+      color:black;
     }
     .item-title-text {
-        color:black;
         font-size: 20px;
-        font-weight: bold;
         height: 30px;
         margin-top : 5px;
     }
@@ -62,7 +61,7 @@ export default {
 
     @media (max-width: 1024px){
       .like-text {
-        width:30%;
+        width:50%;
         height:25px;
         margin-left :5px;
       }

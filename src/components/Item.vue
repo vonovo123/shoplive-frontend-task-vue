@@ -41,12 +41,12 @@
         <div class="btns">
           <button
             class="update"
-            @click="fncClickEditBtn">
+            @click="clickEditBtn">
             수정
           </button>
           <button
             class="remove"
-            @click="fncClickRemoveBtn">
+            @click="clickRemoveBtn">
             제거
           </button>
         </div>
@@ -62,7 +62,7 @@
             :target="'imageUrl'"
             :class-name="['image-text']"
             placeholder="변경할 이미지의 url을 입력해주세요."
-            @edit="fncEditItemValue" />
+            @edit="editItemValue" />
         </div> 
       </div>
       <div
@@ -74,7 +74,7 @@
           :target="'likeCount'"
           :class-name="['like-text']"
           placeholder="LIKE"
-          @edit="fncEditItemValue" />
+          @edit="editItemValue" />
       </div>
       <div class="content edit">
         <div
@@ -87,7 +87,7 @@
               :input-text="itemView.likeCount"
               :target="'likeCount'"
               placeholder="변경할 LIKE의 값을 입력해주세요."
-              @edit="fncEditItemValue" />
+              @edit="editItemValue" />
           </div>
           <div class="item-title">
             <Textarea
@@ -95,7 +95,7 @@
               :input-text="itemView.title"
               :target="'title'"
               placeholder="변경할 TITLE의 값을 입력해주세요."
-              @edit="fncEditItemValue" />
+              @edit="editItemValue" />
           </div>
           <div class="item-date">
             {{ itemView.date }}
@@ -113,18 +113,18 @@
               :input-text="itemView.title"
               :target="'title'"
               placeholder="변경할 TITLE의 값을 입력해주세요."
-              @edit="fncEditItemValue" />
+              @edit="editItemValue" />
           </div>
         </div>
         <div class="btns">
           <button
             class="update"
-            @click="fncClickCancelBtn">
+            @click="clickCancelBtn">
             취소
           </button>
           <button
             class="remove"
-            @click="fncClickSaveBtn(itemView.id)">
+            @click="clickSaveBtn(itemView.id)">
             저장
           </button>
         </div>
@@ -140,11 +140,7 @@ export default {
   components:{Textarea},
   created(){
     this.itemView = this.initItem(this.item);
-    window.addEventListener('resize',()=>{
-      const {innerWidth, innerHeight} = window;
-      this.fncSetViewPortSize(innerWidth, innerHeight)
-    })
-    
+    this.addResizeEvent();
   },
   mounted(){
     this.initImage();
@@ -156,24 +152,31 @@ export default {
       itemView : null
     }
   },
-  update(){
-    this.initImage();
-  },
   props:{
     item : {
       type:Object,
       default : () => ({})
     }
   },
+  emits: ['remove-item','edit-item','set-default-image'],
   methods : {
+    //반응형 컴포넌트를 위해 뷰포트 크기를 받아오는 이벤트를 추가합니다.
+    addResizeEvent(){
+      window.addEventListener('resize',()=>{
+        const {innerWidth, innerHeight} = window;
+        this.setViewPortSize(innerWidth, innerHeight)
+      })
+    },
+    //컴포넌트 생성시 이미지를 로드하고 이미지를 불러오지 못할경우 default-image로 변환합니다.
     async initImage(){
       try{
         await this.$loadImage(this.itemView.imageUrl);
       } catch(error){
         this.itemView.imageUrl = noImage;
-        this.$emit('fnsSetDefaultImage', {id: this.itemView.id, url : this.itemView.imageUrl});
+        this.$emit('set-default-image', {id: this.itemView.id, url : this.itemView.imageUrl});
       }
     },
+    //화면/수정용 itemView 객체를 생성합니다.
     initItem(item){
         let date = new Date(item.createdAt);
         return {
@@ -185,32 +188,38 @@ export default {
           edit : false,
         };
     },
-    fncSetViewPortSize(width, height){
+    //viewport의 크기를 저장합니다.
+    setViewPortSize(width, height){
       this.windowWidth = width;
       this.windowHeight = height;
     },
-    fncClickRemoveBtn(){
-      this.$emit('fncRemoveItem',this.item.id);
+    //삭제버튼 클릭시 상위 컴포넌트의 removeItem을 실행합니다.
+    clickRemoveBtn(){
+      this.$emit('remove-item',this.item.id);
     },
-    fncClickEditBtn(){
+    //수정버튼 클릭시 수정화면으로 전환합니다.
+    clickEditBtn(){
       this.itemView.edit = true;
     },
-    fncClickCancelBtn(){
+    //취소버튼 클릭시 기존화면으로 전환합니다.
+    clickCancelBtn(){
       this.itemView.title = this.item.title;
       this.itemView.likeCount = this.item.likeCount;
       this.itemView.imageUrl = this.item.imageUrl;
       this.itemView.edit = false;
     },  
-   async fncClickSaveBtn(){
+   //저장버튼 클릭시 이미지를 로드하고 상위 컴포넌트의 editItem를 실행합니다.
+   async clickSaveBtn(){
       try{
         await this.$loadImage(this.itemView.imageUrl);
       } catch(error){
         this.itemView.imageUrl = noImage;
       }
       this.itemView.edit = false;
-      this.$emit('fncEditItem', this.itemView);
+      this.$emit('edit-item', this.itemView);
     },
-    fncEditItemValue({target, value}){
+    //TextArea 컴포넌트에서 전달 받은 값을 set 합니다.
+    editItemValue({target, value}){
       this.itemView[target] = value;
     }  
   }
