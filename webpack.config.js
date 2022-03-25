@@ -16,8 +16,8 @@ module.exports = {
 
   //결과물을 반환하는 설정
   output : {
-    // path:path.resolve(__dirname, 'dist'),
-    // filename:'main.js',
+    path:path.resolve(__dirname, 'docs'),
+    filename:'main.js',
     clean: true
   },
   module : {
