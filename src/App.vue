@@ -43,7 +43,6 @@ export default {
             item.isHidden = false;
             return item;
       })
-      console.log(data);
       this.items = [...data];
       this.count = this.items.length;
       this.$setStorage('item-list', this.items);
