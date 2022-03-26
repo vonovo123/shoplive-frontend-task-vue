@@ -165,7 +165,7 @@ export default {
         }
         .inner{
             &.items{
-              display:block;
+              justify-content: center;
             }
           }
       }
