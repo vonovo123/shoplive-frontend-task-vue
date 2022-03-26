@@ -56,8 +56,8 @@ export default {
       addItem.createdAt = timeStamp;
       addItem.titleView =`<div class=title>${addItem.title}</div>`;
       addItem.isHidden = false;
-      this.items.push({...addItem});
-      this.itemIDs.push(timeStamp);
+      this.items.unshift({...addItem});
+      this.itemIDs.unshift(timeStamp);
       this.count = this.items.length;
       this.$setStorage('item-list', this.items);
       return addItem;
@@ -158,7 +158,7 @@ export default {
           }
         }
       }
-      @media (max-width: 480px){
+      @media (max-width: 479px){
         input {
           width:40%;
         }

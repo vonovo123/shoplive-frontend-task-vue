@@ -124,7 +124,7 @@
           </button>
           <button
             class="remove"
-            @click="clickSaveBtn(itemView.id)">
+            @click="clickSaveBtn">
             저장
           </button>
         </div>
@@ -209,14 +209,17 @@ export default {
       this.itemView.edit = false;
     },  
    //저장버튼 클릭시 이미지를 로드하고 상위 컴포넌트의 editItem를 실행합니다.
-   async clickSaveBtn(){
+   async clickSaveBtn(event){
       try{
+        event.target.style['display'] = 'none'
         await this.$loadImage(this.itemView.imageUrl);
+        event.target.style['display'] = 'block'
       } catch(error){
         this.itemView.imageUrl = noImage;
+      } finally{
+        this.itemView.edit = false;
+        this.$emit('edit-item', this.itemView);
       }
-      this.itemView.edit = false;
-      this.$emit('edit-item', this.itemView);
     },
     //TextArea 컴포넌트에서 전달 받은 값을 set 합니다.
     editItemValue({target, value}){
@@ -420,7 +423,7 @@ export default {
         }
     }          
   }
-  @media (max-width: 480px){
+  @media (max-width: 479px){
     .item-row {
       width:95%; 
     }
