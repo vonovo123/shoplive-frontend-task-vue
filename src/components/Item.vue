@@ -334,8 +334,7 @@ export default {
 
   @media (max-width: 1024px){
     .item-row {
-      width:47%;
-      margin-left :3%;
+      width:48%;
       display: block;
       position:relative;
       .image {
