@@ -1,20 +1,16 @@
 <template>
   <header>
-    <div class="inner">
-      SHOPLIVE
-    </div>
+    <div class="inner">반응형 CRUD SEARCH LIST</div>
   </header>
 </template>
 
 <script>
-export default {
-
-}
+export default {};
 </script>
 
 <style lang="scss" scoped>
-      header {
-        background-color: gray;
-        color: white;
-      }
+header {
+  background-color: gray;
+  color: white;
+}
 </style>
